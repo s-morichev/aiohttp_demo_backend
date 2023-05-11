@@ -1,0 +1,7 @@
+**/__pycache__/
+.idea/
+.coverage
+.env
+.env.test
+.env.local
+redis.acl

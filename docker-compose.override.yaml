@@ -1,0 +1,18 @@
+services:
+  backend:
+    restart: "no"
+    build:
+      target: development
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8080"
+
+  backend-postgres:
+    ports:
+      - "${BACKEND_PG_PORT}:5432"
+
+  backend-redis:
+    ports:
+      - "${BACKEND_REDIS_PORT}:6379"

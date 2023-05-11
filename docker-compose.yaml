@@ -1,0 +1,34 @@
+services:
+  backend:
+    restart: "always"
+    image: backend:latest
+    container_name: backend
+    env_file:
+      - .env
+    depends_on:
+      - backend-postgres
+      - backend-redis
+
+  backend-postgres:
+    restart: "always"
+    image: postgres:15.2-alpine
+    container_name: backend_postgres
+    volumes:
+      - backend_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${BACKEND_PG_USER}
+      - POSTGRES_PASSWORD=${BACKEND_PG_PASSWORD}
+      - POSTGRES_DB=${BACKEND_PG_DB_NAME}
+
+  backend-redis:
+    restart: "always"
+    image: redis:7.0.11-alpine
+    container_name: backend_redis
+    command: redis-server --save 20 1 --aclfile /etc/redis.acl
+    volumes:
+      - ./redis.acl:/etc/redis.acl
+      - backend_redis_data:/data
+
+volumes:
+  backend_postgres_data:
+  backend_redis_data:
