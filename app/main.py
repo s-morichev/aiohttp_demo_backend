@@ -2,17 +2,14 @@ import logging
 
 from aiohttp import web
 
-routes = web.RouteTableDef()
-
-
-@routes.get("/api/v1/register")
-async def register(request: web.Request) -> web.Response:
-    return web.Response(text="New user")
+from app.api.v1.users import user_routes
+from app.db.pre_start import db_context
 
 
 async def init_app() -> web.Application:
     app = web.Application()
-    app.add_routes(routes)
+    app.cleanup_ctx.append(db_context)
+    app.add_routes(user_routes)
     return app
 
 
