@@ -11,11 +11,13 @@ auth_routes = web.RouteTableDef()
 async def login(request: web.Request) -> web.Response:
     session = await get_session(request)
     storage = request.get(STORAGE_KEY)
+    if storage is None:
+        raise RuntimeError("Aiohttp_session not installed")
 
     if not session.new:
         # TODO delete previous session
         # await storage.delete(session)
-        session = new_session(request)
+        session = await new_session(request)
 
     creds = await request.json()
 
@@ -25,12 +27,12 @@ async def login(request: web.Request) -> web.Response:
     if not user:
         raise web.HTTPUnauthorized
 
-    if not verify_password(creds["password"], user["password_hash"]):
+    if not verify_password(creds["password"], user.password_hash):
         raise web.HTTPUnauthorized
 
     response = web.json_response()
-    session.set_new_identity(user["id"])
-    session["role"] = user["role"]
+    session.set_new_identity(user.id)
+    session["role"] = user.role
     await storage.save_session(request, response, session)
 
     return response
