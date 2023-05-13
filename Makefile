@@ -20,7 +20,7 @@ restart:
 
 run-test-db:
 	docker run --env POSTGRES_USER=user --env POSTGRES_PASSWORD=password --env POSTGRES_DB=test_database --name test_backend_postgres -p 45432:5432 -d postgres:15.2-alpine
-	docker run --name test_backend_redis -p 46379:6379 -d redis:7.0.11-alpine bin/sh -c 'redis-server user user on +@all ~* &* >password'
+	docker run --name test_backend_redis -p 46379:6379 -d redis:7.0.11-alpine
 
 test:
 	coverage run -m pytest -s ./app/tests

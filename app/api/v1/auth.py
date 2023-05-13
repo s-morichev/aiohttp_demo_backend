@@ -1,0 +1,36 @@
+from aiohttp import web
+from aiohttp_session import STORAGE_KEY, get_session, new_session
+
+from app import user_service
+from app.security import verify_password
+
+auth_routes = web.RouteTableDef()
+
+
+@auth_routes.post("/api/v1/login")
+async def login(request: web.Request) -> web.Response:
+    session = await get_session(request)
+    storage = request.get(STORAGE_KEY)
+
+    if not session.new:
+        # TODO delete previous session
+        # await storage.delete(session)
+        session = new_session(request)
+
+    creds = await request.json()
+
+    async with request.app["db_engine"].connect() as conn:
+        user = await user_service.read_user_by_login(conn, creds["login"])
+
+    if not user:
+        raise web.HTTPUnauthorized
+
+    if not verify_password(creds["password"], user["password_hash"]):
+        raise web.HTTPUnauthorized
+
+    response = web.json_response()
+    session.set_new_identity(user["id"])
+    session["role"] = user["role"]
+    await storage.save_session(request, response, session)
+
+    return response

@@ -1,5 +1,4 @@
 import contextlib
-from typing import AsyncIterator
 
 from aiohttp import web
 from sqlalchemy.exc import IntegrityError
@@ -7,13 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from app.config import settings
 from app.db.tables import metadata, roles, users
-
-
-def create_engine() -> AsyncEngine:
-    return create_async_engine(
-        settings.sqlalchemy_database_uri,
-        echo=settings.debug_echo_sql,
-    )
+from app.security import get_password_hash
 
 
 async def recreate_tables(engine: AsyncEngine) -> None:
@@ -35,7 +28,7 @@ async def create_admin(engine: AsyncEngine) -> None:
             await conn.execute(
                 users.insert().values(
                     login=settings.admin_login,
-                    password_hash="hash",
+                    password_hash=get_password_hash(settings.admin_password),
                     role="Admin",
                 ),
             )
@@ -48,11 +41,14 @@ async def init_db(engine: AsyncEngine) -> None:
     await create_admin(engine)
 
 
-async def db_context(app: web.Application) -> AsyncIterator[None]:
-    engine = create_engine()
+async def create_engine(app: web.Application) -> None:
+    engine = create_async_engine(
+        settings.sqlalchemy_database_uri,
+        echo=settings.debug_echo_sql,
+    )
     await init_db(engine)
     app["db_engine"] = engine
 
-    yield
 
+async def dispose_engine(app: web.Application) -> None:
     await app["db_engine"].dispose()

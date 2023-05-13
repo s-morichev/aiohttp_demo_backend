@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     debug_echo_sql: bool = Field(default=False, env="BACKEND_ECHO_SQL")
     admin_login: str = Field(..., env="BACKEND_ADMIN_LOGIN")
     admin_password: str = Field(..., env="BACKEND_ADMIN_PASSWORD")
+    redis_uri: str = Field(..., env="BACKEND_REDIS_DSN")
     sqlalchemy_database_uri: str = Field(
         ...,
         env="BACKEND_PG_DSN",
