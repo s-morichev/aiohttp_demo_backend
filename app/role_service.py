@@ -1,10 +1,12 @@
+from http import HTTPStatus
+
 from sqlalchemy import delete, insert, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from app import schemas
 from app.db.tables import roles
-from app.exceptions import DeleteReferencedValueError
+from app.exceptions import ApiError
 
 
 async def create_role(
@@ -41,7 +43,10 @@ async def delete_role(
     try:
         role_result = await conn.execute(stmt)
     except IntegrityError:
-        raise DeleteReferencedValueError
+        raise ApiError(
+            HTTPStatus.CONFLICT,
+            "Attempt to delete role, that referenced by some users",
+        )
     return schemas.Role.from_orm(role_result.one())
 
 

@@ -1,14 +1,14 @@
 import logging
 
-import aiohttp_session
 from aiohttp import web
+from aiohttp_session import session_middleware
 from aiohttp_session.redis_storage import RedisStorage
 from redis.asyncio import Redis
 
 from app.api.routes import setup_routes
 from app.config import settings
 from app.db.pre_start import create_engine, dispose_engine
-from app.security import security_middleware
+from app.middlewares import error_middleware, security_middleware
 
 
 def setup_redis(app: web.Application) -> "Redis[bytes]":
@@ -21,18 +21,20 @@ async def init_app() -> web.Application:
     app = web.Application()
     await create_engine(app)
     app.on_cleanup.append(dispose_engine)
+
     redis = setup_redis(app)
-    aiohttp_session.setup(
-        app,
-        RedisStorage(
-            redis,
-            cookie_name=settings.cookie_session_name,
-            max_age=settings.cookie_session_expire_sec,
-        ),
+    redis_storage = RedisStorage(
+        redis,
+        cookie_name=settings.cookie_session_name,
+        max_age=settings.cookie_session_expire_sec,
     )
 
-    # must be after aiohttp_session setup
-    app.middlewares.append(security_middleware)
+    middlewares = [
+        error_middleware,
+        session_middleware(redis_storage),
+        security_middleware,
+    ]
+    app.middlewares.extend(middlewares)
 
     setup_routes(app)
     return app

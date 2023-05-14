@@ -1,7 +1,10 @@
+from http import HTTPStatus
+
 from aiohttp import web
 from aiohttp_session import STORAGE_KEY, get_session, new_session
 
 from app import user_service
+from app.exceptions import ApiError
 from app.security import verify_password
 
 auth_routes = web.RouteTableDef()
@@ -25,10 +28,10 @@ async def login(request: web.Request) -> web.Response:
         user = await user_service.read_user_by_login(conn, creds["login"])
 
     if not user:
-        raise web.HTTPUnauthorized
+        raise ApiError(HTTPStatus.UNAUTHORIZED, "Invalid login or passowrd")
 
     if not verify_password(creds["password"], user.password_hash):
-        raise web.HTTPUnauthorized
+        raise ApiError(HTTPStatus.UNAUTHORIZED, "Invalid login or passowrd")
 
     response = web.json_response()
     session["user_id"] = str(user.id)

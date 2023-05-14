@@ -4,7 +4,7 @@ from aiohttp import web
 from pydantic import ValidationError
 
 from app import role_service, schemas
-from app.exceptions import DeleteReferencedValueError
+from app.exceptions import ApiError
 
 role_routes = web.RouteTableDef()
 
@@ -16,12 +16,12 @@ async def create_role(request: web.Request) -> web.Response:
     try:
         role_create = schemas.RoleCreate.parse_raw(await request.content.read())
     except ValidationError:  # noqa: WPS329
-        raise web.HTTPUnprocessableEntity
+        raise ApiError(HTTPStatus.UNPROCESSABLE_ENTITY, "Cannot parse role")
 
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         role = await role_service.create_role(conn, role_create)
         if role is None:
-            raise web.HTTPConflict
+            raise ApiError(HTTPStatus.CONFLICT, "Role already exist")
     return web.json_response(
         body=schemas.dump_schema(role), status=HTTPStatus.CREATED
     )
@@ -33,7 +33,7 @@ async def read_role(request: web.Request) -> web.Response:
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         role = await role_service.read_role(conn, role_name)
         if not role:
-            raise web.HTTPNotFound
+            raise ApiError(HTTPStatus.NOT_FOUND, "Role not found")
     return web.json_response(body=schemas.dump_schema(role))
 
 
@@ -41,12 +41,9 @@ async def read_role(request: web.Request) -> web.Response:
 async def delete_role(request: web.Request) -> web.Response:
     role_name = request.match_info["role_name"]
     async with request.app[DB_ENGINE_KEY].begin() as conn:
-        try:
-            role = await role_service.delete_role(conn, role_name)
-        except DeleteReferencedValueError:
-            raise web.HTTPConflict
+        role = await role_service.delete_role(conn, role_name)
         if not role:
-            raise web.HTTPNotFound
+            raise ApiError(HTTPStatus.NOT_FOUND, "Role not found")
     return web.json_response(body=schemas.dump_schema(role))
 
 
