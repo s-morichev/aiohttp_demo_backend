@@ -1,6 +1,4 @@
-from datetime import date, datetime
 from typing import Any, Callable, Sequence
-from uuid import UUID
 
 import orjson
 from pydantic import BaseModel
@@ -20,37 +18,7 @@ class BaseSchema(BaseModel):
         orm_mode = True
 
 
-class Role(BaseSchema):
-    name: str
-
-
-class User(BaseSchema):
-    id: UUID
-    name: str
-    surname: str
-    birthdate: date | None
-    registered_at: datetime
-    role: str
-
-
-class UserInDB(User):
-    login: str
-    password_hash: str
-
-
-class UserCreate(BaseSchema):
-    login: str
-    password: str
-
-
-class UserUpdate(BaseSchema):
-    password: str | None = None
-    name: str | None
-    surname: str | None
-    birthdate: date | None
-
-
-def dump_schemas_list(
+def dump_schemas_sequence(
     models: Sequence[BaseSchema],
     default: Callable[[Any], Any] = BaseSchema.__json_encoder__,
 ) -> bytes:

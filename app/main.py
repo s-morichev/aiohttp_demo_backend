@@ -5,8 +5,7 @@ from aiohttp import web
 from aiohttp_session.redis_storage import RedisStorage
 from redis.asyncio import Redis
 
-from app.api.v1.auth import auth_routes
-from app.api.v1.users import user_routes
+from app.api.routes import setup_routes
 from app.config import settings
 from app.db.pre_start import create_engine, dispose_engine
 from app.security import security_middleware
@@ -35,8 +34,7 @@ async def init_app() -> web.Application:
     # must be after aiohttp_session setup
     app.middlewares.append(security_middleware)
 
-    app.add_routes(user_routes)
-    app.add_routes(auth_routes)
+    setup_routes(app)
     return app
 
 

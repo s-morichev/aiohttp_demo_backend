@@ -59,6 +59,19 @@ async def update_user(
     return schemas.User.from_orm(user_result.one())
 
 
+async def update_user_role(
+    conn: AsyncConnection, user_id: str, role_name: str
+) -> schemas.User:
+    stmt = (
+        update(users)
+        .where(users.c.id == user_id)
+        .values(role=role_name)
+        .returning(users)
+    )
+    user_result = await conn.execute(stmt)
+    return schemas.User.from_orm(user_result.one())
+
+
 async def delete_user(
     conn: AsyncConnection, user_id: str
 ) -> schemas.User | None:

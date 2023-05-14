@@ -57,6 +57,22 @@ async def test_update_user_password(
     assert response.status == HTTPStatus.OK
 
 
+async def test_update_user_role(
+    client_admin: TestClient, test_user_id: str
+) -> None:
+    new_role = "Admin"
+    response = await client_admin.put(
+        f"{USERS_PATH}/{test_user_id}/role", json={"name": new_role}
+    )
+    assert response.status == HTTPStatus.OK
+
+    # check role is updated in db
+    response = await client_admin.get(f"{USERS_PATH}/{test_user_id}")
+    assert response.status == HTTPStatus.OK
+    user = await response.json()
+    assert user.get("role") == new_role
+
+
 async def test_delete_user(client_admin: TestClient, test_user_id: str) -> None:
     response = await client_admin.delete(f"{USERS_PATH}/{test_user_id}")
     assert response.status == HTTPStatus.OK
