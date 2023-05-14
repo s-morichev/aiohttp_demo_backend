@@ -1,18 +1,12 @@
+import asyncio
 import contextlib
 
-from aiohttp import web
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from app.config import settings
-from app.db.tables import metadata, roles, users
+from app.db.tables import roles, users
 from app.security import get_password_hash
-
-
-async def recreate_tables(engine: AsyncEngine) -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(metadata.drop_all)
-        await conn.run_sync(metadata.create_all)
 
 
 async def insert_roles(engine: AsyncEngine) -> None:
@@ -35,20 +29,20 @@ async def create_admin(engine: AsyncEngine) -> None:
 
 
 async def init_db(engine: AsyncEngine) -> None:
-    # пересоздаем таблицы пока нет миграций
-    await recreate_tables(engine)
     await insert_roles(engine)
     await create_admin(engine)
 
 
-async def create_engine(app: web.Application) -> None:
+async def main() -> None:
     engine = create_async_engine(
         settings.sqlalchemy_database_uri,
         echo=settings.debug_echo_sql,
     )
-    await init_db(engine)
-    app["db_engine"] = engine
+    with contextlib.suppress(Exception):
+        await init_db(engine)
+
+    await engine.dispose()
 
 
-async def dispose_engine(app: web.Application) -> None:
-    await app["db_engine"].dispose()
+if __name__ == "__main__":
+    asyncio.run(main())

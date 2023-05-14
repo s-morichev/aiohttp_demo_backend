@@ -47,7 +47,8 @@ WORKDIR $PYSETUP_PATH
 RUN poetry install --no-root
 
 WORKDIR /opt/app/
-COPY ../app .
+COPY ../app ../alembic.ini  ./
+COPY ../alembic ./alembic
 
 EXPOSE 8080
 CMD ["python3", "main.py"]

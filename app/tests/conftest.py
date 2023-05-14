@@ -16,9 +16,13 @@ env_test = base_dir / ".env.test"
 load_dotenv(env_test, override=True)
 
 
-from app import schemas, user_service  # noqa: E402p
+from app import user_service  # noqa: E402
 from app.main import init_app  # noqa: E402
 from app.tests import constants  # noqa: E402
+from app.tests.preparation import (  # noqa: E402
+    clear_all_data,
+    insert_initial_data,
+)
 
 AiohttpClient = Callable[
     [web.Application | BaseTestServer], Awaitable[TestClient]
@@ -28,15 +32,8 @@ AiohttpClient = Callable[
 @pytest_asyncio.fixture
 async def app() -> web.Application:
     application = await init_app()
-    test_user = schemas.UserCreate(
-        login=constants.TEST_USER, password=constants.TEST_PASSWORD
-    )
-    test_admin = schemas.UserCreate(
-        login=constants.TEST_ADMIN, password=constants.TEST_PASSWORD
-    )
-    async with application["db_engine"].begin() as conn:
-        await user_service.create_user(conn, test_user)
-        await user_service.create_user(conn, test_admin, role="Admin")
+    await clear_all_data(application)
+    await insert_initial_data(application)
     return application
 
 

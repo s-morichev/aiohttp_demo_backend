@@ -7,7 +7,7 @@ from redis.asyncio import Redis
 
 from app.api.routes import setup_routes
 from app.config import settings
-from app.db.pre_start import create_engine, dispose_engine
+from app.db.setup import dispose_engine, setup_engine
 from app.middlewares import error_middleware, security_middleware
 
 
@@ -19,7 +19,7 @@ def setup_redis(app: web.Application) -> "Redis[bytes]":
 
 async def init_app() -> web.Application:
     app = web.Application()
-    await create_engine(app)
+    await setup_engine(app)
     app.on_cleanup.append(dispose_engine)
 
     redis = setup_redis(app)
