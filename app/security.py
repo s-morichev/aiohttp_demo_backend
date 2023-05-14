@@ -20,7 +20,7 @@ def get_password_hash(password: str) -> str:
 def check_permission(request: web.Request, session: Session) -> bool:
     if session.get("role") == "Admin":
         return True
-    return session.identity == request.path.replace("/api/v1/users/", "")
+    return session.get("user_id") == request.path.replace("/api/v1/users/", "")
 
 
 @web.middleware

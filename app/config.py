@@ -6,6 +6,9 @@ from pydantic import BaseSettings, Field, validator
 class Settings(BaseSettings):
     debug: bool = Field(default=False, env="BACKEND_DEBUG")
     debug_echo_sql: bool = Field(default=False, env="BACKEND_ECHO_SQL")
+    cookie_session_name: str = "session_id"
+    cookie_session_expire_sec: int = 60 * 60 * 24  # 24 hours
+    default_role: str = "User"
     admin_login: str = Field(..., env="BACKEND_ADMIN_LOGIN")
     admin_password: str = Field(..., env="BACKEND_ADMIN_PASSWORD")
     redis_uri: str = Field(..., env="BACKEND_REDIS_DSN")

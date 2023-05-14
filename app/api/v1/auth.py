@@ -31,7 +31,7 @@ async def login(request: web.Request) -> web.Response:
         raise web.HTTPUnauthorized
 
     response = web.json_response()
-    session.set_new_identity(user.id)
+    session["user_id"] = str(user.id)
     session["role"] = user.role
     await storage.save_session(request, response, session)
 

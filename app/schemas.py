@@ -38,8 +38,27 @@ class UserInDB(User):
     password_hash: str
 
 
+class UserCreate(BaseSchema):
+    login: str
+    password: str
+
+
+class UserUpdate(BaseSchema):
+    password: str | None = None
+    name: str | None
+    surname: str | None
+    birthdate: date | None
+
+
 def dump_schemas_list(
     models: Sequence[BaseSchema],
     default: Callable[[Any], Any] = BaseSchema.__json_encoder__,
 ) -> bytes:
     return orjson.dumps(models, default=default)
+
+
+def dump_schema(
+    model: BaseSchema,
+    default: Callable[[Any], Any] = BaseSchema.__json_encoder__,
+) -> bytes:
+    return orjson.dumps(model, default=default)

@@ -23,7 +23,14 @@ async def init_app() -> web.Application:
     await create_engine(app)
     app.on_cleanup.append(dispose_engine)
     redis = setup_redis(app)
-    aiohttp_session.setup(app, RedisStorage(redis))
+    aiohttp_session.setup(
+        app,
+        RedisStorage(
+            redis,
+            cookie_name=settings.cookie_session_name,
+            max_age=settings.cookie_session_expire_sec,
+        ),
+    )
 
     # must be after aiohttp_session setup
     app.middlewares.append(security_middleware)
