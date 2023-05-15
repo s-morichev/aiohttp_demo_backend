@@ -49,6 +49,9 @@ Swagger не сделан, можно добавить с помощью aiohttp
 - `cp .env.test.example .env.test` используется для тестирования в докере
 - `cp .env.test.local.example .env.test.local` используется для тестирования на хосте
 
+Создать acl для редиса
+- `cp redis.acl.example redis.acl`
+
 Запустить и остановить приложение с удалением контейнеров
 - `make dev-run`
 - `make dev-stop`
