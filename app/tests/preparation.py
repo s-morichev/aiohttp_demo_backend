@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app import schemas
 from app.constants import DB_ENGINE, REDIS
-from app.db.tables import roles, users
+from app.db.tables import history, roles, users
 from app.services import role_service, user_service
 from app.tests import constants
 
@@ -14,6 +14,7 @@ async def clear_db(engine: AsyncEngine) -> None:
     async with engine.begin() as conn:
         await conn.execute(delete(users))
         await conn.execute(delete(roles))
+        await conn.execute(delete(history))
 
 
 async def clear_storage(redis_client: "Redis[bytes]") -> None:

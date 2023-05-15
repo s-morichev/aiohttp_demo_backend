@@ -1,11 +1,15 @@
+import asyncio
+import logging
 from http.cookies import SimpleCookie
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import Awaitable, Callable, Iterator, cast
 
+import pytest
 import pytest_asyncio
 from aiohttp import web
 from aiohttp.test_utils import BaseTestServer, TestClient
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 # Для локального запуска тестов на хосте явно загружаем переменные окружения
 # из .env.test.local в корневой папке до импорта приложения, так как pytest
@@ -27,12 +31,27 @@ AiohttpClient = Callable[
 ]
 
 
+logging.getLogger("aiohttp.access").disabled = True
+
+
+@pytest.fixture(scope="session")
+def event_loop() -> Iterator[asyncio.AbstractEventLoop]:
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
 @pytest_asyncio.fixture
 async def app() -> web.Application:
     application = await init_app()
     await clear_all_data(application)
     await insert_initial_data(application)
     return application
+
+
+@pytest_asyncio.fixture
+async def engine(app: web.Application) -> AsyncEngine:
+    return cast(AsyncEngine, app["db_engine"])
 
 
 @pytest_asyncio.fixture

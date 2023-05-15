@@ -20,10 +20,16 @@ def setup_redis(app: web.Application) -> "Redis[bytes]":
     return redis
 
 
+async def close_redis(app: web.Application) -> None:
+    redis_client = app["redis"]
+    await redis_client.connection_pool.disconnect()
+
+
 async def init_app() -> web.Application:
     app = web.Application()
     await setup_engine(app)
     app.on_cleanup.append(dispose_engine)
+    app.on_cleanup.append(close_redis)
 
     redis = setup_redis(app)
     redis_storage = RedisStorage(

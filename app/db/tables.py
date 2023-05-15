@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import JSONB
 
 metadata = sa.MetaData()
 
@@ -43,4 +44,13 @@ users = sa.Table(
         sa.ForeignKey(roles.c.name),
         nullable=False,
     ),
+)
+
+
+history = sa.Table(
+    "history",
+    metadata,
+    sa.Column("id", sa.BigInteger, primary_key=True),
+    sa.Column("old", JSONB),
+    sa.Column("new", JSONB),
 )
