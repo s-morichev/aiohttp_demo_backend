@@ -7,12 +7,11 @@ from aiohttp import web
 from aiohttp.test_utils import BaseTestServer, TestClient
 from dotenv import load_dotenv
 
-# Для запуска тестов на хосте явно загружаем переменные окружения
-# из .env.test в корневой папке до импорта приложения, так как pytest
+# Для локального запуска тестов на хосте явно загружаем переменные окружения
+# из .env.test.local в корневой папке до импорта приложения, так как pytest
 # сам по умолчанию загружает переменные окружения из .env
-# TODO настроить тестирование в докере
 base_dir = Path(__file__).parent.parent.parent
-env_test = base_dir / ".env.test"
+env_test = base_dir / ".env.test.local"
 load_dotenv(env_test, override=True)
 
 

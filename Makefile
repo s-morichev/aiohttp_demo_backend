@@ -22,18 +22,22 @@ restart:
 	docker compose up -d --build
 
 run-test-db:
-	docker run --env POSTGRES_USER=user --env POSTGRES_PASSWORD=password --env POSTGRES_DB=test_database --name test_backend_postgres -p 45432:5432 -d postgres:15.2-alpine
-	docker run --name test_backend_redis -p 46379:6379 -d redis:7.0.11-alpine
+	docker compose -f docker-compose.test.yaml --env-file .env.test up -d test-backend-postgres test-backend-redis
 	sleep 3  # ждем запуск постгрес для применения миграций
-	alembic upgrade head
+	docker compose -f docker-compose.test.yaml --env-file .env.test build test-backend
+	docker compose -f docker-compose.test.yaml --env-file .env.test run --rm test-backend alembic upgrade head
+
 
 test:
-	coverage run -m pytest -s ./app/tests
-	coverage html
+	poetry run coverage run -m pytest -s ./app/tests
+	poetry run coverage html
+
+test-in-docker:
+	docker compose -f docker-compose.test.yaml --env-file .env.test build test-backend
+	docker compose -f docker-compose.test.yaml --env-file .env.test run --rm test-backend coverage run -m pytest -s ./tests
 
 stop-test-db:
-	docker rm --force test_backend_postgres
-	docker rm --force test_backend_redis
+	docker compose -f docker-compose.test.yaml --env-file .env.test down -v
 
 build-backend:
 	docker build --file=docker/Dockerfile --target=production .

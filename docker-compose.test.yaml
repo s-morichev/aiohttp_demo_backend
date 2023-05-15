@@ -1,0 +1,30 @@
+services:
+  test-backend:
+    build:
+      target: development
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    container_name: test_backend
+    env_file:
+      - .env.test
+    depends_on:
+      - test-backend-postgres
+      - test-backend-redis
+
+  test-backend-postgres:
+    restart: "always"
+    image: postgres:15.2-alpine
+    container_name: test_backend_postgres
+    environment:
+      - POSTGRES_USER=${BACKEND_PG_USER}
+      - POSTGRES_PASSWORD=${BACKEND_PG_PASSWORD}
+      - POSTGRES_DB=${BACKEND_PG_DB_NAME}
+    ports:
+      - "${BACKEND_PG_PORT}:5432"
+
+  test-backend-redis:
+    restart: "always"
+    image: redis:7.0.11-alpine
+    container_name: test_backend_redis
+    ports:
+      - "${BACKEND_REDIS_PORT}:6379"
