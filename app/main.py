@@ -1,4 +1,4 @@
-import logging
+from logging.config import dictConfig
 
 from aiohttp import web
 from aiohttp_session import session_middleware
@@ -8,7 +8,10 @@ from redis.asyncio import Redis
 from app.api.routes import setup_routes
 from app.config import settings
 from app.db.setup import dispose_engine, setup_engine
+from app.logging_config import log_config
 from app.middlewares import error_middleware, security_middleware
+
+dictConfig(log_config)
 
 
 def setup_redis(app: web.Application) -> "Redis[bytes]":
@@ -42,5 +45,4 @@ async def init_app() -> web.Application:
 
 if __name__ == "__main__":
     application = init_app()
-    logging.basicConfig(level=logging.DEBUG)
     web.run_app(application)
