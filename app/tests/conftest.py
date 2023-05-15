@@ -14,9 +14,8 @@ base_dir = Path(__file__).parent.parent.parent
 env_test = base_dir / ".env.test.local"
 load_dotenv(env_test, override=True)
 
-
-from app import user_service  # noqa: E402
 from app.main import init_app  # noqa: E402
+from app.services import user_service
 from app.tests import constants  # noqa: E402
 from app.tests.preparation import (  # noqa: E402
     clear_all_data,

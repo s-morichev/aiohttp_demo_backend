@@ -3,9 +3,10 @@ from redis.asyncio import Redis
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from app import role_service, schemas, user_service
+from app import schemas
 from app.constants import DB_ENGINE, REDIS
 from app.db.tables import roles, users
+from app.services import role_service, user_service
 from app.tests import constants
 
 

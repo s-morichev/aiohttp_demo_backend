@@ -3,8 +3,9 @@ from http import HTTPStatus
 from aiohttp import web
 from pydantic import ValidationError
 
-from app import role_service, schemas
+from app import schemas
 from app.exceptions import ApiError
+from app.services import role_service
 
 role_routes = web.RouteTableDef()
 
