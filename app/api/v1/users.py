@@ -11,6 +11,7 @@ user_routes = web.RouteTableDef()
 
 DB_ENGINE_KEY = "db_engine"
 USER_ID = "user_id"
+USER_NOT_FOUND = "User not found"
 
 
 @user_routes.post("/api/v1/users")
@@ -35,7 +36,7 @@ async def read_user(request: web.Request) -> web.Response:
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         user = await user_service.read_user(conn, user_id)
         if not user:
-            raise ApiError(HTTPStatus.NOT_FOUND, "User not found")
+            raise ApiError(HTTPStatus.NOT_FOUND, USER_NOT_FOUND)
     return web.json_response(body=schemas.dump_schema(user))
 
 
@@ -52,7 +53,7 @@ async def update_user(request: web.Request) -> web.Response:
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         user = await user_service.update_user(conn, user_id, user_update)
         if user is None:
-            raise ApiError(HTTPStatus.NOT_FOUND, "User not found")
+            raise ApiError(HTTPStatus.NOT_FOUND, USER_NOT_FOUND)
     return web.json_response(body=schemas.dump_schema(user))
 
 
@@ -66,7 +67,7 @@ async def update_user_role(request: web.Request) -> web.Response:
 
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         if not await user_service.read_user(conn, user_id):
-            raise ApiError(HTTPStatus.NOT_FOUND, "User not found")
+            raise ApiError(HTTPStatus.NOT_FOUND, USER_NOT_FOUND)
         if not await role_service.read_role(conn, role.name):
             raise ApiError(HTTPStatus.NOT_FOUND, "Role not found")
         user = await user_service.update_user_role(conn, user_id, role.name)
@@ -79,7 +80,7 @@ async def delete_user(request: web.Request) -> web.Response:
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         user = await user_service.delete_user(conn, user_id)
         if not user:
-            raise ApiError(HTTPStatus.NOT_FOUND, "User not found")
+            raise ApiError(HTTPStatus.NOT_FOUND, USER_NOT_FOUND)
     return web.json_response(body=schemas.dump_schema(user))
 
 
