@@ -18,9 +18,15 @@ base_dir = Path(__file__).parent.parent.parent
 env_test = base_dir / ".env.test.local"
 load_dotenv(env_test, override=True)
 
+from app.constants import DB_ENGINE_KEY  # noqa: E402
 from app.main import init_app  # noqa: E402
 from app.services import user_service  # noqa: E402
-from app.tests import constants  # noqa: E402
+from app.tests.constants import (  # noqa: E402
+    LOGIN_PATH,
+    TEST_ADMIN,
+    TEST_PASSWORD,
+    TEST_USER,
+)
 from app.tests.preparation import (  # noqa: E402
     clear_all_data,
     insert_initial_data,
@@ -51,13 +57,13 @@ async def app() -> web.Application:
 
 @pytest_asyncio.fixture
 async def engine(app: web.Application) -> AsyncEngine:
-    return cast(AsyncEngine, app["db_engine"])
+    return cast(AsyncEngine, app[DB_ENGINE_KEY])
 
 
 @pytest_asyncio.fixture
 async def test_user_id(app: web.Application) -> str:
-    async with app["db_engine"].connect() as conn:
-        user = await user_service.read_user_by_login(conn, constants.TEST_USER)
+    async with app[DB_ENGINE_KEY].connect() as conn:
+        user = await user_service.read_user_by_login(conn, TEST_USER)
     if user is None:
         raise RuntimeError("Test user not created")
     return str(user.id)
@@ -65,8 +71,8 @@ async def test_user_id(app: web.Application) -> str:
 
 @pytest_asyncio.fixture
 async def test_admin_id(app: web.Application) -> str:
-    async with app["db_engine"].connect() as conn:
-        user = await user_service.read_user_by_login(conn, constants.TEST_ADMIN)
+    async with app[DB_ENGINE_KEY].connect() as conn:
+        user = await user_service.read_user_by_login(conn, TEST_ADMIN)
     if user is None:
         raise RuntimeError("Test admin not created")
     return str(user.id)
@@ -81,11 +87,12 @@ async def client(
 
 @pytest_asyncio.fixture
 async def user_cookie_session(client: TestClient) -> SimpleCookie[str]:
+    url = LOGIN_PATH
     response = await client.post(
-        "/api/v1/login",
+        url,
         json={
-            "login": constants.TEST_USER,
-            "password": constants.TEST_PASSWORD,
+            "login": TEST_USER,
+            "password": TEST_PASSWORD,
         },
     )
     return response.cookies
@@ -93,11 +100,12 @@ async def user_cookie_session(client: TestClient) -> SimpleCookie[str]:
 
 @pytest_asyncio.fixture
 async def admin_cookie_session(client: TestClient) -> SimpleCookie[str]:
+    url = LOGIN_PATH
     response = await client.post(
-        "/api/v1/login",
+        url,
         json={
-            "login": constants.TEST_ADMIN,
-            "password": constants.TEST_PASSWORD,
+            "login": TEST_ADMIN,
+            "password": TEST_PASSWORD,
         },
     )
     return response.cookies

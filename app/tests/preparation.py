@@ -4,7 +4,7 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app import schemas
-from app.constants import DB_ENGINE, REDIS
+from app.constants import DB_ENGINE_KEY, REDIS_KEY
 from app.db.tables import history, roles, users
 from app.services import role_service, user_service
 from app.tests import constants
@@ -22,8 +22,8 @@ async def clear_storage(redis_client: "Redis[bytes]") -> None:
 
 
 async def clear_all_data(app: web.Application) -> None:
-    await clear_db(app[DB_ENGINE])
-    await clear_storage(app[REDIS])
+    await clear_db(app[DB_ENGINE_KEY])
+    await clear_storage(app[REDIS_KEY])
 
 
 async def db_insert_initial(engine: AsyncEngine) -> None:
@@ -44,4 +44,4 @@ async def db_insert_initial(engine: AsyncEngine) -> None:
 
 
 async def insert_initial_data(app: web.Application) -> None:
-    await db_insert_initial(app[DB_ENGINE])
+    await db_insert_initial(app[DB_ENGINE_KEY])

@@ -7,6 +7,7 @@ from redis.asyncio import Redis
 
 from app.api.routes import setup_routes
 from app.config import settings
+from app.constants import REDIS_KEY
 from app.db.setup import dispose_engine, setup_engine
 from app.logging_config import log_config
 from app.middlewares import error_middleware, security_middleware
@@ -16,12 +17,12 @@ dictConfig(log_config)
 
 def setup_redis(app: web.Application) -> "Redis[bytes]":
     redis = Redis.from_url(settings.redis_uri)
-    app["redis"] = redis
+    app[REDIS_KEY] = redis
     return redis
 
 
 async def close_redis(app: web.Application) -> None:
-    redis_client = app["redis"]
+    redis_client = app[REDIS_KEY]
     await redis_client.connection_pool.disconnect()
 
 

@@ -4,13 +4,15 @@ import pytest
 from aiohttp.test_utils import TestClient
 
 from app.config import settings
-from app.tests import constants
+from app.tests.constants import (
+    TEST_PASSWORD,
+    TEST_USER,
+    USERS_ID_PATH,
+    USERS_PATH,
+    USERS_ROLE_PATH,
+)
 
 pytestmark = pytest.mark.asyncio
-
-USERS_PATH = constants.USERS_PATH
-USERS_ID_PATH = "".join((USERS_PATH, "/{id}"))
-USERS_ROLE_PATH = "".join((USERS_PATH, "/{id}", "/role"))
 
 
 async def test_create_user(client_admin: TestClient) -> None:
@@ -46,7 +48,7 @@ async def test_update_user(client_admin: TestClient, test_user_id: str) -> None:
 async def test_update_user_password(
     client_admin: TestClient, test_user_id: str
 ) -> None:
-    new_password = f"new{constants.TEST_PASSWORD}"
+    new_password = f"new{TEST_PASSWORD}"
     url = USERS_ID_PATH.format(id=test_user_id)
     response = await client_admin.put(url, json={"password": new_password})
     assert response.status == HTTPStatus.OK
@@ -54,7 +56,7 @@ async def test_update_user_password(
     # check password is updated in db
     response = await client_admin.post(
         "/api/v1/login",
-        json={"login": constants.TEST_USER, "password": new_password},
+        json={"login": TEST_USER, "password": new_password},
     )
     assert response.status == HTTPStatus.OK
 

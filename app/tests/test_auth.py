@@ -4,17 +4,18 @@ import pytest
 from aiohttp.test_utils import TestClient
 
 from app.config import settings
-from app.tests import constants
+from app.tests.constants import LOGIN_PATH, TEST_PASSWORD, TEST_USER
 
 pytestmark = pytest.mark.asyncio
 
 
 async def test_login(client: TestClient) -> None:
+    url = LOGIN_PATH
     response = await client.post(
-        "/api/v1/login",
+        url,
         json={
-            "login": constants.TEST_USER,
-            "password": constants.TEST_PASSWORD,
+            "login": TEST_USER,
+            "password": TEST_PASSWORD,
         },
     )
     assert response.status == HTTPStatus.OK
@@ -22,22 +23,24 @@ async def test_login(client: TestClient) -> None:
 
 
 async def test_login_invalid_password(client: TestClient) -> None:
+    url = LOGIN_PATH
     response = await client.post(
-        "/api/v1/login",
+        url,
         json={
-            "login": constants.TEST_USER,
-            "password": f"invalid{constants.TEST_PASSWORD}",
+            "login": TEST_USER,
+            "password": f"invalid{TEST_PASSWORD}",
         },
     )
     assert response.status == HTTPStatus.UNAUTHORIZED
 
 
 async def test_login_invalid_login(client: TestClient) -> None:
+    url = LOGIN_PATH
     response = await client.post(
-        "/api/v1/login",
+        url,
         json={
-            "login": f"non exist{constants.TEST_USER}",
-            "password": constants.TEST_PASSWORD,
+            "login": f"non exist{TEST_USER}",
+            "password": TEST_PASSWORD,
         },
     )
     assert response.status == HTTPStatus.UNAUTHORIZED

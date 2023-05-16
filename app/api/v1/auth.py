@@ -4,6 +4,7 @@ from aiohttp import web
 from pydantic import ValidationError
 
 from app import schemas
+from app.constants import DB_ENGINE_KEY
 from app.exceptions import ApiError
 from app.services import auth_service, user_service
 
@@ -21,7 +22,7 @@ async def login(request: web.Request) -> web.Response:
             HTTPStatus.UNPROCESSABLE_ENTITY, "Cannot parse login password"
         )
 
-    async with request.app["db_engine"].connect() as conn:
+    async with request.app[DB_ENGINE_KEY].connect() as conn:
         user = await user_service.read_user_by_login(conn, creds.login)
 
     response = web.json_response()

@@ -4,14 +4,11 @@ from aiohttp import web
 from pydantic import ValidationError
 
 from app import schemas
+from app.constants import DB_ENGINE_KEY, USER_ID, USER_NOT_FOUND
 from app.exceptions import ApiError
 from app.services import role_service, user_service
 
 user_routes = web.RouteTableDef()
-
-DB_ENGINE_KEY = "db_engine"
-USER_ID = "user_id"
-USER_NOT_FOUND = "User not found"
 
 
 @user_routes.post("/api/v1/users")

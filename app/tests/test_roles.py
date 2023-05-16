@@ -4,23 +4,17 @@ import pytest
 from aiohttp.test_utils import TestClient
 
 from app.config import settings
-from app.tests import constants
+from app.tests.constants import NAME_KEY, ROLES_NAME_PATH, ROLES_PATH, TEST_ROLE
 
 pytestmark = pytest.mark.asyncio
-
-ROLES_PATH = constants.ROLES_PATH
-ROLES_NAME_PATH = "".join((ROLES_PATH, "/{name}"))
-NAME_KEY = "name"
 
 
 async def test_create_role(client_admin: TestClient) -> None:
     url = ROLES_PATH
-    response = await client_admin.post(
-        url, json={NAME_KEY: constants.TEST_ROLE}
-    )
+    response = await client_admin.post(url, json={NAME_KEY: TEST_ROLE})
     assert response.status == HTTPStatus.CREATED
     role = await response.json()
-    assert role.get(NAME_KEY) == constants.TEST_ROLE
+    assert role.get(NAME_KEY) == TEST_ROLE
 
 
 async def test_read_role(client_admin: TestClient) -> None:
@@ -42,9 +36,9 @@ async def test_delete_used_role(
 async def test_delete_unused_role(
     client_admin: TestClient,
 ) -> None:
-    url = ROLES_NAME_PATH.format(name=constants.TEST_ROLE)
+    url = ROLES_NAME_PATH.format(name=TEST_ROLE)
     # create role
-    await client_admin.post(ROLES_PATH, json={NAME_KEY: constants.TEST_ROLE})
+    await client_admin.post(ROLES_PATH, json={NAME_KEY: TEST_ROLE})
     # delete role
     response = await client_admin.delete(url)
     assert response.status == HTTPStatus.OK

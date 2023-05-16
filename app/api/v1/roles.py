@@ -4,12 +4,11 @@ from aiohttp import web
 from pydantic import ValidationError
 
 from app import schemas
+from app.constants import DB_ENGINE_KEY
 from app.exceptions import ApiError
 from app.services import role_service
 
 role_routes = web.RouteTableDef()
-
-DB_ENGINE_KEY = "db_engine"
 
 
 @role_routes.post("/api/v1/roles")

@@ -3,14 +3,15 @@ from uuid import uuid4
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
 
+from app.constants import (
+    ROLE_NAME_LEN,
+    USER_LOGIN_LEN,
+    USER_NAME_LEN,
+    USER_PASSWORD_HASH_LEN,
+    USER_SURNAME_LEN,
+)
+
 metadata = sa.MetaData()
-
-
-ROLE_NAME_LEN = 50
-USER_NAME_LEN = 50
-USER_SURNAME_LEN = 50
-USER_LOGIN_LEN = 50
-USER_PASSWORD_HASH_LEN = 128
 
 
 roles = sa.Table(

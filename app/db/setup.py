@@ -2,6 +2,7 @@ from aiohttp import web
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.config import settings
+from app.constants import DB_ENGINE_KEY
 
 
 async def setup_engine(app: web.Application) -> None:
@@ -9,8 +10,8 @@ async def setup_engine(app: web.Application) -> None:
         settings.sqlalchemy_database_uri,
         echo=settings.debug_echo_sql,
     )
-    app["db_engine"] = engine
+    app[DB_ENGINE_KEY] = engine
 
 
 async def dispose_engine(app: web.Application) -> None:
-    await app["db_engine"].dispose()
+    await app[DB_ENGINE_KEY].dispose()
