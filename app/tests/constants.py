@@ -13,3 +13,4 @@ ROLES_PATH = "/api/v1/roles"
 ROLES_NAME_PATH = "".join((ROLES_PATH, "/{name}"))
 
 LOGIN_PATH = "/api/v1/login"
+LOGOUT_PATH = "/api/v1/logout"

@@ -27,3 +27,9 @@ async def login(request: web.Request) -> web.Response:
 
     response = web.json_response()
     return await auth_service.login_user(user, creds, request, response)
+
+
+@auth_routes.get("/api/v1/logout")
+async def logout(request: web.Request) -> web.Response:
+    response = web.json_response()
+    return await auth_service.logout_user(request, response)

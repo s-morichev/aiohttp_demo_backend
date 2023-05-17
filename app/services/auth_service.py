@@ -33,3 +33,18 @@ async def login_user(
     await storage.save_session(request, response, session)
 
     return response
+
+
+async def logout_user(
+    request: web.Request,
+    response: web.Response,
+) -> web.Response:
+    session = await get_session(request)
+    storage = request.get(STORAGE_KEY)
+    if storage is None:
+        raise RuntimeError("Aiohttp_session not installed")
+
+    session.invalidate()
+    await storage.save_session(request, response, session)
+
+    return response
