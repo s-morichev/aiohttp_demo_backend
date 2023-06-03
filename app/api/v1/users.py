@@ -1,23 +1,19 @@
 from http import HTTPStatus
 
 from aiohttp import web
-from pydantic import ValidationError
 
 from app import schemas
 from app.constants import DB_ENGINE_KEY, USER_ID, USER_NOT_FOUND
 from app.exceptions import ApiError
 from app.services import role_service, user_service
-from app.validations import validate_user_id
+from app.validations import parse_schema, validate_user_id
 
 user_routes = web.RouteTableDef()
 
 
 @user_routes.post("/api/v1/users")
 async def create_user(request: web.Request) -> web.Response:
-    try:
-        user_create = schemas.UserCreate.parse_raw(await request.content.read())
-    except ValidationError:  # noqa: WPS329
-        raise ApiError(HTTPStatus.UNPROCESSABLE_ENTITY, "Cannot parse user")
+    user_create = parse_schema(await request.content.read(), schemas.UserCreate)
 
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         user = await user_service.create_user(conn, user_create)
@@ -43,12 +39,7 @@ async def read_user(request: web.Request) -> web.Response:
 async def update_user(request: web.Request) -> web.Response:
     user_id = request.match_info[USER_ID]
     validate_user_id(user_id)
-    try:
-        user_update = schemas.UserUpdate.parse_raw(await request.content.read())
-    except ValidationError:  # noqa: WPS329
-        raise ApiError(
-            HTTPStatus.UNPROCESSABLE_ENTITY, "Cannot parse user update"
-        )
+    user_update = parse_schema(await request.content.read(), schemas.UserUpdate)
 
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         user = await user_service.update_user(conn, user_id, user_update)
@@ -61,10 +52,7 @@ async def update_user(request: web.Request) -> web.Response:
 async def update_user_role(request: web.Request) -> web.Response:
     user_id = request.match_info[USER_ID]
     validate_user_id(user_id)
-    try:
-        role = schemas.Role.parse_raw(await request.content.read())
-    except ValidationError:  # noqa: WPS329
-        raise ApiError(HTTPStatus.UNPROCESSABLE_ENTITY, "Cannot parse role")
+    role = parse_schema(await request.content.read(), schemas.Role)
 
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         if not await user_service.read_user(conn, user_id):

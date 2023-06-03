@@ -11,6 +11,7 @@ USER_PASSWORD_HASH_LEN = 128
 
 # string literals
 USER_ID = "user_id"
+ROLE_NAME = "role_name"
 
 # messages
 USER_NOT_FOUND = "User not found"
