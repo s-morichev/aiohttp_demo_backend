@@ -7,6 +7,7 @@ from app import schemas
 from app.constants import DB_ENGINE_KEY, USER_ID, USER_NOT_FOUND
 from app.exceptions import ApiError
 from app.services import role_service, user_service
+from app.validations import validate_user_id
 
 user_routes = web.RouteTableDef()
 
@@ -30,6 +31,7 @@ async def create_user(request: web.Request) -> web.Response:
 @user_routes.get("/api/v1/users/{user_id}")
 async def read_user(request: web.Request) -> web.Response:
     user_id = request.match_info[USER_ID]
+    validate_user_id(user_id)
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         user = await user_service.read_user(conn, user_id)
         if not user:
@@ -40,6 +42,7 @@ async def read_user(request: web.Request) -> web.Response:
 @user_routes.put("/api/v1/users/{user_id}")
 async def update_user(request: web.Request) -> web.Response:
     user_id = request.match_info[USER_ID]
+    validate_user_id(user_id)
     try:
         user_update = schemas.UserUpdate.parse_raw(await request.content.read())
     except ValidationError:  # noqa: WPS329
@@ -57,6 +60,7 @@ async def update_user(request: web.Request) -> web.Response:
 @user_routes.put("/api/v1/users/{user_id}/role")
 async def update_user_role(request: web.Request) -> web.Response:
     user_id = request.match_info[USER_ID]
+    validate_user_id(user_id)
     try:
         role = schemas.Role.parse_raw(await request.content.read())
     except ValidationError:  # noqa: WPS329
@@ -74,6 +78,7 @@ async def update_user_role(request: web.Request) -> web.Response:
 @user_routes.delete("/api/v1/users/{user_id}")
 async def delete_user(request: web.Request) -> web.Response:
     user_id = request.match_info[USER_ID]
+    validate_user_id(user_id)
     async with request.app[DB_ENGINE_KEY].begin() as conn:
         user = await user_service.delete_user(conn, user_id)
         if not user:

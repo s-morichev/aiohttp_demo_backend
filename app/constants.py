@@ -14,3 +14,4 @@ USER_ID = "user_id"
 
 # messages
 USER_NOT_FOUND = "User not found"
+USER_ID_MUST_BE_UUID = "User id must be UUID"

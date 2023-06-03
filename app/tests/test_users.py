@@ -33,6 +33,23 @@ async def test_read_user(client_admin: TestClient, test_user_id: str) -> None:
     assert user.get("role") == settings.default_role
 
 
+@pytest.mark.parametrize(
+    "user_id, status_code",
+    [
+        ("1", HTTPStatus.UNPROCESSABLE_ENTITY),
+        ("-1", HTTPStatus.UNPROCESSABLE_ENTITY),
+        ("invalid uuid", HTTPStatus.UNPROCESSABLE_ENTITY),
+        ("fd3a7c6a-4094-4ff7-ab88-74d7571ce7f2", HTTPStatus.NOT_FOUND),
+    ],
+)
+async def test_read_user_errors(
+    client_admin: TestClient, user_id: str, status_code: int
+) -> None:
+    url = USERS_ID_PATH.format(id=user_id)
+    response = await client_admin.get(url)
+    assert response.status == status_code
+
+
 async def test_update_user(client_admin: TestClient, test_user_id: str) -> None:
     url = USERS_ID_PATH.format(id=test_user_id)
     response = await client_admin.put(url, json={"name": "username"})
