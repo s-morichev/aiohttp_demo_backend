@@ -28,7 +28,7 @@ async def close_redis(app: web.Application) -> None:
 
 async def init_app() -> web.Application:
     app = web.Application()
-    await setup_engine(app)
+    app.on_startup.append(setup_engine)
     app.on_cleanup.append(dispose_engine)
     app.on_cleanup.append(close_redis)
 

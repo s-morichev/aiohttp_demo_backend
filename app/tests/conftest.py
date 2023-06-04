@@ -2,7 +2,7 @@ import asyncio
 import logging
 from http.cookies import SimpleCookie
 from pathlib import Path
-from typing import Awaitable, Callable, Iterator, cast
+from typing import AsyncIterator, Awaitable, Callable, cast
 
 import pytest
 import pytest_asyncio
@@ -48,11 +48,17 @@ def event_loop() -> Iterator[asyncio.AbstractEventLoop]:
 
 
 @pytest_asyncio.fixture
-async def app() -> web.Application:
+async def app() -> AsyncIterator[web.Application]:
     application = await init_app()
+    runner = web.AppRunner(application, handle_signals=True)
+    await runner.setup()  # call appliction.on_startup coroutines
+
     await clear_all_data(application)
     await insert_initial_data(application)
-    return application
+
+    yield application
+
+    await runner.cleanup()  # call appliction.on_cleanup coroutines
 
 
 @pytest_asyncio.fixture
