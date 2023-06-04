@@ -29,12 +29,12 @@ run-test-db:
 
 
 test:
-	poetry run coverage run -m pytest -s ./app/tests
+	poetry run coverage run -m pytest ./app/tests
 	poetry run coverage html
 
 test-in-docker:
 	docker compose -f docker-compose.test.yaml --env-file .env.test build test-backend
-	docker compose -f docker-compose.test.yaml --env-file .env.test run --rm test-backend coverage run -m pytest -s ./tests
+	docker compose -f docker-compose.test.yaml --env-file .env.test run --rm test-backend coverage run -m pytest ./tests
 
 stop-test-db:
 	docker compose -f docker-compose.test.yaml --env-file .env.test down -v

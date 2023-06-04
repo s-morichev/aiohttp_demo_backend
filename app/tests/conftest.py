@@ -1,10 +1,7 @@
-import asyncio
-import logging
 from http.cookies import SimpleCookie
 from pathlib import Path
 from typing import AsyncIterator, Awaitable, Callable, cast
 
-import pytest
 import pytest_asyncio
 from aiohttp import web
 from aiohttp.test_utils import BaseTestServer, TestClient
@@ -35,16 +32,6 @@ from app.tests.preparation import (  # noqa: E402
 AiohttpClient = Callable[
     [web.Application | BaseTestServer], Awaitable[TestClient]
 ]
-
-
-logging.getLogger("aiohttp.access").disabled = True
-
-
-@pytest.fixture(scope="session")
-def event_loop() -> Iterator[asyncio.AbstractEventLoop]:
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest_asyncio.fixture
