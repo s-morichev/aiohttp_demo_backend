@@ -8,7 +8,7 @@ from redis.asyncio import Redis
 from app.api.routes import setup_routes
 from app.config import settings
 from app.constants import REDIS_KEY
-from app.db.setup import dispose_engine, setup_engine
+from app.db.setup import db_engine
 from app.logging_config import log_config
 from app.middlewares import error_middleware, security_middleware
 
@@ -28,8 +28,7 @@ async def close_redis(app: web.Application) -> None:
 
 async def init_app() -> web.Application:
     app = web.Application()
-    app.on_startup.append(setup_engine)
-    app.on_cleanup.append(dispose_engine)
+    app.cleanup_ctx.append(db_engine)
     app.on_cleanup.append(close_redis)
 
     redis = setup_redis(app)
